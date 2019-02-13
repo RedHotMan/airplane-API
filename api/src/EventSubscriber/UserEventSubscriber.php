@@ -34,6 +34,7 @@ final class UserEventSubscriber implements EventSubscriberInterface
         if (!$user instanceof User || Request::METHOD_POST !== $method) {
             return;
         }
-        $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPassword()));
+        $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPlainPassword()));
+        $user->eraseCredentials();
     }
 }

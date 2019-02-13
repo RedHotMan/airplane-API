@@ -5,13 +5,30 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+
 /**
- * @ApiResource()
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * User entity
+ *
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get",
+ *         "post"={"validation_groups"={"Default", "postValidation"}}
+ *     },
+ *     itemOperations={
+ *         "delete",
+ *         "get",
+ *         "put"={"validation_groups"={"Default", "putValidation"}}
+ *     },
+ *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}}
+ * )
+ * @ORM\Entity
  * @ORM\Table(name="airplane_user")
  */
+
 class User implements UserInterface
 {
     /**
@@ -24,6 +41,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Groups({"write", "read"})
      */
     private $username;
 
@@ -31,18 +49,35 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Assert\Email(message="Your email is not valid")
+     * @Groups({"write", "read"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
-     * @Assert\Length(min = 4)
      */
     private $password;
 
     /**
-     * @ORM\Column(type="json")
+     * @var string PlainPassword
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min="4",
+     *     groups={"postValidation", "putValidation"}
+     * )
+     * @Assert\NotEqualTo(
+     *     propertyPath="password",
+     *     groups={"putValidation"}
+     * )
+     *
+     * @Groups({"write"})
+     */
+    private $plainPassword;
+
+    /**
+     * @ORM\Column(type="json_array")
+     * @Groups({"read"})
      */
     private $roles = [];
 
@@ -87,6 +122,19 @@ class User implements UserInterface
         return $this;
     }
 
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     */
+    public function setPlainPassword(string $plainPassword): void
+    {
+        $this->plainPassword = $plainPassword;
+    }
+
     /**
      * Returns the roles granted to the user.
      *
@@ -109,6 +157,12 @@ class User implements UserInterface
         return array_unique($roles);
     }
 
+    public function setRoles($roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
     /**
      * Returns the salt that was originally used to encode the password.
      *
@@ -118,7 +172,7 @@ class User implements UserInterface
      */
     public function getSalt()
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
     /**
@@ -129,6 +183,6 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        // TODO: Implement eraseCredentials() method.
+        $this->plainPassword = null;
     }
 }
