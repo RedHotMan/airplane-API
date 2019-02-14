@@ -6,10 +6,27 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Validator\Constraints\PersonalFunctions;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get",
+ *         "post"
+ *     },
+ *     itemOperations={
+ *          "get",
+ *          "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     normalizationContext={"groups"={"personal_read"}},
+ *     denormalizationContext={"groups"={"personal_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\PersonalRepository")
+ * @UniqueEntity("name")
  */
 class Personal
 {
@@ -22,22 +39,29 @@ class Personal
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"company_read", "personal_read", "personal_write"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @PersonalFunctions
+     * @Groups({"company_read", "personal_read", "personal_write"})
      */
     private $function;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Flight", mappedBy="personals")
+     * @Groups({"personal_read"})
      */
     private $flights;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="personals")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"personal_read", "personal_write"})
      */
     private $company;
 

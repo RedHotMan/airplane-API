@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 /**
@@ -18,15 +19,21 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "post"={"validation_groups"={"Default", "postValidation"}}
  *     },
  *     itemOperations={
- *         "delete",
- *         "get",
- *         "put"={"validation_groups"={"Default", "putValidation"}}
+ *         "delete"={"access_control"="is_granted('ROLE_USER') and object == user "},
+ *         "get"={"access_control"="is_granted('ROLE_USER') and object == user "},
+ *         "put"={
+ *              "access_control"="is_granted('ROLE_USER') and object == user",
+ *              "validation_groups"={"Default", "putValidation"}
+ *          }
  *     },
  *     normalizationContext={"groups"={"read"}},
  *     denormalizationContext={"groups"={"write"}}
  * )
  * @ORM\Entity
  * @ORM\Table(name="airplane_user")
+ * @UniqueEntity(
+ *     fields={"username","email"}
+ * )
  */
 
 class User implements UserInterface
@@ -43,7 +50,7 @@ class User implements UserInterface
      * @Assert\NotBlank
      * @Groups({"write", "read"})
      */
-    private $username;
+    public $username;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -51,7 +58,7 @@ class User implements UserInterface
      * @Assert\Email(message="Your email is not valid")
      * @Groups({"write", "read"})
      */
-    private $email;
+    public $email;
 
     /**
      * @ORM\Column(type="string", length=255)

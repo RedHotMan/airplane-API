@@ -6,9 +6,23 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get",
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+ *          "get",
+ *          "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     normalizationContext={"groups"={"plane_read"}},
+ *     denormalizationContext={"groups"={"plane_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\PlaneRepository")
  */
 class Plane
@@ -22,27 +36,37 @@ class Plane
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\Length(min=4,max=4)
+     * @Groups({"company_read", "plane_read"})
      */
     private $number;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"company_read", "plane_read", "plane_write"})
      */
     private $model;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\GreaterThan(0)
+     * @Groups({"company_read", "plane_read", "plane_write"})
      */
     private $seatNumber;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Flight", mappedBy="plane", orphanRemoval=true)
+     * @Groups({"plane_read"})
      */
     private $flights;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="planes")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"plane_read","flight_read", "plane_write"})
      */
     private $company;
 

@@ -3,13 +3,32 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get",
+ *         "post"={"validation_groups"={"Default", "postValidation"}}
+ *     },
+ *     itemOperations={
+ *         "delete",
+ *         "get",
+ *         "put"={"validation_groups"={"Default", "putValidation"}}
+ *     },
+ *     normalizationContext={"groups"={"passenger_read"}},
+ *     denormalizationContext={"groups"={"passenger_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\PassengerRepository")
+ * @UniqueEntity(
+ *     fields={"lastname","firstname"}
+ * )
  */
 class Passenger
 {
@@ -22,31 +41,45 @@ class Passenger
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"passenger_read","passenger_write", "company_read", "luggage_read"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"passenger_read","passenger_write", "company_read", "luggage_read"})
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\NotBlank
+     * @Assert\Datetime
+     * @Assert\LessThan("-10 years")
+     * @Groups({"passenger_read","passenger_write"})
      */
     private $birthdate;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Assert\Choice(choices={true, false})
+     * @Groups({"passenger_read","passenger_write", "company_read", "luggage_read"})
      */
     private $gender;
 
     /**
+     * @ApiSubresource(maxDepth=1)
      * @ORM\OneToMany(targetEntity="App\Entity\Luggage", mappedBy="passenger")
+     * @Groups({"passenger_read", "company_read"})
      */
     private $luggages;
 
     /**
+     * @ApiSubresource(maxDepth=1)
      * @ORM\ManyToMany(targetEntity="App\Entity\Flight", mappedBy="passengers")
+     * @Groups({"passenger_read", "company_read"})
      */
     private $flights;
 
@@ -166,5 +199,10 @@ class Passenger
         }
 
         return $this;
+    }
+
+    public function _toString()
+    {
+        return $this->firstname.' '.$this->lastname;
     }
 }

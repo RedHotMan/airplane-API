@@ -3,13 +3,29 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get"
+ *     },
+ *     itemOperations={
+ *         "get"
+ *     },
+ *     normalizationContext={"groups"={"city_read"}},
+ *     denormalizationContext={"groups"={"city_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\CityRepository")
+ * @UniqueEntity(
+ *     fields={"name", "zipCode"}
+ * )
  */
 class City
 {
@@ -22,21 +38,29 @@ class City
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"city_write", "city_read", "airport_read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"city_write", "city_read", "airport_read", "flight_read"})
      */
     private $zipCode;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"city_write", "city_read", "airport_read", "flight_read"})
      */
     private $country;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Airport", mappedBy="city", orphanRemoval=true)
+     * @ApiSubresource(maxDepth=1)
+     * @Groups({"city_read"})
      */
     private $airports;
 
@@ -115,5 +139,10 @@ class City
         }
 
         return $this;
+    }
+
+    public function _toString()
+    {
+        return $this->name;
     }
 }

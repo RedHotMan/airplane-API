@@ -3,13 +3,28 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get",
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+            "get"
+ *     },
+ *     normalizationContext={"groups"={"airport_read"}},
+ *     denormalizationContext={"groups"={"airport_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\AirportRepository")
+ * @UniqueEntity("name")
  */
 class Airport
 {
@@ -22,22 +37,29 @@ class Airport
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"airport_write", "airport_read", "city_read", "flight_read"})
      */
     private $name;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\City", inversedBy="airports")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"airport_read", "airport_write"})
      */
     private $city;
 
     /**
+     * @ApiSubresource(maxDepth=1)
      * @ORM\OneToMany(targetEntity="App\Entity\Flight", mappedBy="departureAirport", orphanRemoval=true)
+     * @Groups({"airport_read", "city_read"})
      */
     private $departureFlights;
 
     /**
+     * @ApiSubresource(maxDepth=1)
      * @ORM\OneToMany(targetEntity="App\Entity\Flight", mappedBy="arrivalAirport", orphanRemoval=true)
+     * @Groups({"airport_read", "city_read"})
      */
     private $arrivalFlights;
 

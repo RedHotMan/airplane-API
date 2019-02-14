@@ -3,12 +3,30 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *         "get",
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+ *          "get",
+ *          "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     normalizationContext={"groups"={"flight_read"}},
+ *     denormalizationContext={"groups"={"flight_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\FlightRepository")
+ * @UniqueEntity("number")
  */
 class Flight
 {
@@ -21,44 +39,61 @@ class Flight
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\Length(min=4, max=4)
+     * @Groups({"flight_read", "airport_read", "passenger_read"})
      */
     private $number;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\DateTime
+     * @Assert\GreaterThanOrEqual("today")
+     * @Groups({"flight_read","flight_write", "airport_read", "passenger_read"})
      */
     private $departureDate;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\DateTime
+     * @Assert\GreaterThanOrEqual(
+     *     propertyPath="departureDate"
+     * )
+     * @Groups({"flight_read","flight_write", "airport_read", "passenger_read"})
      */
     private $arrivalDate;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Passenger", inversedBy="flights")
+     * @Groups({"flight_read"})
      */
     private $passengers;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Airport", inversedBy="departureFlights")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"flight_read","flight_write", "passenger_read"})
      */
     private $departureAirport;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Airport", inversedBy="arrivalFlights")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"flight_read","flight_write", "passenger_read"})
      */
     private $arrivalAirport;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Plane", inversedBy="flights")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"flight_read", "passenger_read", "flight_write"})
      */
     private $plane;
 
     /**
+     * @ApiSubresource(maxDepth=1)
      * @ORM\ManyToMany(targetEntity="App\Entity\Personal", inversedBy="flights")
+     * @Groups({"flight_read", "passenger_read"})
      */
     private $personals;
 
@@ -195,5 +230,10 @@ class Flight
         }
 
         return $this;
+    }
+
+    public function _toString()
+    {
+        return Integer.$this->_toString($this->number);
     }
 }

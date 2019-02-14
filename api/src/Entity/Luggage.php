@@ -4,9 +4,14 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"={"luggage_read"}},
+ *     denormalizationContext={"groups"={"luggage_write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\LuggageRepository")
  */
 class Luggage
@@ -20,16 +25,23 @@ class Luggage
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\GreaterThan(0)
+     * @Groups({"luggage_read", "luggage_write", "passenger_read"})
      */
     private $weight;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\GreaterThan(0)
+     * @Groups({"luggage_read", "luggage_write", "passenger_read"})
      */
     private $height;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Passenger", inversedBy="luggages")
+     * @Groups({"luggage_read"})
      */
     private $passenger;
 
