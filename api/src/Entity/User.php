@@ -19,11 +19,24 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *         "post"={"validation_groups"={"Default", "postValidation"}}
  *     },
  *     itemOperations={
- *         "delete"={"access_control"="is_granted('ROLE_USER') and object == user "},
+ *         "delete"={"access_control"="is_granted('ROLE_USER') and object == user or is_granted('ROLE_ADMIN')"},
  *         "get"={"access_control"="is_granted('ROLE_USER') and object == user "},
  *         "put"={
- *              "access_control"="is_granted('ROLE_USER') and object == user",
+ *              "access_control"="is_granted('ROLE_USER') and object == user or is_granted('ROLE_ADMIN')",
  *              "validation_groups"={"Default", "putValidation"}
+ *          },
+ *          "makeUserAdmin"={
+ *              "route_name"="make_user_admin",
+ *              "swagger_context"={
+ *                  "parameters"={
+ *                      {
+ *                          "name"="id",
+ *                          "in"="path",
+ *                          "required"="true",
+ *                          "type"="string",
+ *                      }
+ *                  },
+ *              },
  *          }
  *     },
  *     normalizationContext={"groups"={"read"}},
@@ -159,14 +172,20 @@ class User implements UserInterface
     public function getRoles()
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
+        if (!in_array('ROLE_USER', $roles))
+        {
+            $roles[] = 'ROLE_USER';
+        }
 
-        return array_unique($roles);
+        return $roles;
     }
 
-    public function setRoles($roles): self
+    public function setRoles(string $roles): self
     {
-        $this->roles = $roles;
+        if (!in_array($roles, $this->roles))
+        {
+            $roles[] = $roles;
+        }
         return $this;
     }
 
