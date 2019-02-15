@@ -57,7 +57,7 @@ class Passenger
     /**
      * @ORM\Column(type="datetime")
      * @Assert\NotBlank
-     * @Assert\Datetime
+     * @Assert\DateTime
      * @Assert\LessThan("-10 years")
      * @Groups({"passenger_read","passenger_write"})
      */

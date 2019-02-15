@@ -30,6 +30,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class Airport
 {
     /**
+     * @var integer id
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -37,6 +38,7 @@ class Airport
     private $id;
 
     /**
+     * @var string name
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Groups({"airport_write", "airport_read", "city_read", "flight_read"})
@@ -44,6 +46,7 @@ class Airport
     private $name;
 
     /**
+     * @var string city
      * @ORM\ManyToOne(targetEntity="App\Entity\City", inversedBy="airports")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"airport_read", "airport_write"})
@@ -51,6 +54,7 @@ class Airport
     private $city;
 
     /**
+     * @var array departureFlights
      * @ApiSubresource(maxDepth=1)
      * @ORM\OneToMany(targetEntity="App\Entity\Flight", mappedBy="departureAirport", orphanRemoval=true)
      * @Groups({"airport_read", "city_read"})
@@ -58,6 +62,7 @@ class Airport
     private $departureFlights;
 
     /**
+     * @var array arrivalFlights
      * @ApiSubresource(maxDepth=1)
      * @ORM\OneToMany(targetEntity="App\Entity\Flight", mappedBy="arrivalAirport", orphanRemoval=true)
      * @Groups({"airport_read", "city_read"})
