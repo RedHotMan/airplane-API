@@ -22,11 +22,13 @@ class AirportFixtures extends Fixture implements DependentFixtureInterface
         // On configure dans quelles langues nous voulons nos données
         $faker = Faker\Factory::create('fr_FR');
 
+        $cities = $manager->getRepository('App:City')->findAll();
+
         // on créé 10 personnes
         for ($i = 0; $i < 10; $i++) {
-            $cities = $manager->getRepository('App:City')->findAll();
             $airport = new Airport();
-            $airport->setName($faker->name);
+            $airportName = $faker->city.' Airport';
+            $airport->setName($airportName);
             $airport->setCity($cities[$i]);
             $manager->persist($airport);
         }

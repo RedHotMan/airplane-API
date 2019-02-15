@@ -26,7 +26,7 @@ class CityFixtures extends Fixture
             $city = new City();
             $city->setName($faker->city);
             $city->setCountry($faker->country);
-            $city->setZipCode($faker->randomNumber(4));
+            $city->setZipCode($faker->postcode);
             $manager->persist($city);
         }
 

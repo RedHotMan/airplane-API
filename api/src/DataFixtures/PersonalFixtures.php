@@ -20,15 +20,22 @@ class PersonalFixtures extends Fixture implements DependentFixtureInterface
     {
         // On configure dans quelles langues nous voulons nos données
         $faker = Faker\Factory::create('fr_FR');
+        $functions = ['Pilot', 'Copilot', 'Steward', 'Hostess'];
+
+        $companies = $manager->getRepository('App:Company')->findAll();
+        $flights = $manager->getRepository('App:Flight')->findAll();
 
         // on créé 10 personnes
         for ($i = 0; $i < 10; $i++) {
-            $companies = $manager->getRepository('App:Company')->findAll();
-            $personal = new Personal();
-            $personal->setName($faker->name);
-            $personal->setCompany($companies[$i]);
-            $personal->setFunction($faker->sentence);
-            $manager->persist($personal);
+            for($z = 0; $z < 4; $z++)
+            {
+                $personal = new Personal();
+                $personal->setName($faker->name);
+                $personal->setCompany($companies[$i]);
+                $personal->setFunction($functions[$z]);
+                $personal->addFlight($flights[$i]);
+                $manager->persist($personal);
+            }
         }
 
         $manager->flush();
@@ -38,6 +45,7 @@ class PersonalFixtures extends Fixture implements DependentFixtureInterface
     {
         return array(
             CompanyFixtures::class,
+            FlightFixtures::class
         );
     }
 }

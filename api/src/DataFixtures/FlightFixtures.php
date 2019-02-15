@@ -22,15 +22,16 @@ class FlightFixtures extends Fixture implements DependentFixtureInterface
         // On configure dans quelles langues nous voulons nos données
         $faker = Faker\Factory::create('fr_FR');
 
+        $airports = $manager->getRepository('App:Airport')->findAll();
+        $planes = $manager->getRepository('App:Plane')->findAll();
+
         // on créé 10 personnes
         for ($i = 0; $i < 10; $i++) {
-            $airports = $manager->getRepository('App:Airport')->findAll();
-            $planes = $manager->getRepository('App:Plane')->findAll();
             $flight = new Flight();
             $flight->setDepartureAirport($airports[rand(0, count($airports)-1)]);
             $flight->setArrivalAirport($airports[rand(0, count($airports)-1)]);
-            $flight->setDepartureDate($faker->dateTime($format = 'Y-m-d'));
-            $flight->setArrivalDate($faker->dateTime($format = 'Y-m-d'));
+            $flight->setDepartureDate($faker->dateTimeInInterval('now', '+1 day'));
+            $flight->setArrivalDate($faker->dateTimeInInterval('+1 day', '+2 days'));
             $flight->setNumber($faker->randomNumber(4));
             $flight->setPlane($planes[$i]);
             $manager->persist($flight);

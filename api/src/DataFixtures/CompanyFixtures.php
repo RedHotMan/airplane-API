@@ -24,7 +24,7 @@ class CompanyFixtures extends Fixture
         // on créé 10 personnes
         for ($i = 0; $i < 10; $i++) {
             $company = new Company();
-            $company->setName($faker->name);
+            $company->setName($faker->company);
             $manager->persist($company);
         }
 

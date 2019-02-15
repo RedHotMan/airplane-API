@@ -22,14 +22,15 @@ class PlaneFixtures extends Fixture implements DependentFixtureInterface
         // On configure dans quelles langues nous voulons nos données
         $faker = Faker\Factory::create('fr_FR');
 
+        $companies = $manager->getRepository('App:Company')->findAll();
+
         // on créé 10 personnes
         for ($i = 0; $i < 10; $i++) {
-            $companies = $manager->getRepository('App:Company')->findAll();
             $plane = new Plane();
-            $plane->setNumber($faker->randomNumber(5));
+            $plane->setNumber($faker->randomNumber(4));
             $plane->setCompany($companies[$i]);
-            $plane->setModel($faker->sentence($nbWords = 6));
-            $plane->setSeatNumber($faker->numberBetween(0, 100));
+            $plane->setModel($faker->sentence(2));
+            $plane->setSeatNumber($faker->numberBetween(1, 100));
             $manager->persist($plane);
         }
         $manager->flush();
