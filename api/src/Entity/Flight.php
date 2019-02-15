@@ -80,6 +80,9 @@ class Flight
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Airport", inversedBy="arrivalFlights")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotEqualTo(
+     *     propertyPath="departureAirport"
+     * )
      * @Groups({"flight_read","flight_write", "passenger_read"})
      */
     private $arrivalAirport;
@@ -93,7 +96,7 @@ class Flight
 
     /**
      * @ApiSubresource(maxDepth=1)
-     * @ORM\ManyToMany(targetEntity="App\Entity\Personal", inversedBy="flights")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Personal", inversedBy="flights", cascade={"persist"})
      * @Groups({"flight_read", "passenger_read"})
      */
     private $personals;

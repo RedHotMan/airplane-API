@@ -4,6 +4,8 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\Flight;
+use App\Entity\Personal;
+use App\Service\AddFlightPersonalService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
@@ -12,6 +14,13 @@ use Faker;
 
 final class FlightEventSubscriber implements EventSubscriberInterface
 {
+    private $addFlightPersonalService;
+
+    public function __construct(AddFlightPersonalService $addFlightPersonalService)
+    {
+        $this->addFlightPersonalService = $addFlightPersonalService;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
@@ -21,6 +30,8 @@ final class FlightEventSubscriber implements EventSubscriberInterface
 
     public function createFlight(GetResponseForControllerResultEvent $event)
     {
+
+        //Create Random Number
         $faker = Faker\Factory::create();
         $flight = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
@@ -30,5 +41,8 @@ final class FlightEventSubscriber implements EventSubscriberInterface
         }
 
         $flight->setNumber($faker->randomNumber(4));
+
+        //Add 4 personals per flight
+        $this->addFlightPersonalService->addPersonal($flight);
     }
 }

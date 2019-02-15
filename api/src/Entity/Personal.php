@@ -54,8 +54,8 @@ class Personal
     private $function;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Flight", mappedBy="personals")
-     * @Groups({"personal_read"})
+     * @ORM\ManyToMany(targetEntity="App\Entity\Flight", mappedBy="personals", cascade={"persist"})
+     * @Groups({"personal_read", "personal_write"})
      */
     private $flights;
 

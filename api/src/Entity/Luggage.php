@@ -27,7 +27,8 @@ class Luggage
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank
-     * @Assert\GreaterThan(0)
+     * @Assert\GreaterThan(1)
+     * @Assert\LessThanOrEqual(12)
      * @Groups({"luggage_read", "luggage_write", "passenger_read"})
      */
     private $weight;
@@ -35,7 +36,8 @@ class Luggage
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank
-     * @Assert\GreaterThan(0)
+     * @Assert\GreaterThan(10)
+     * @Assert\LessThanOrEqual(100)
      * @Groups({"luggage_read", "luggage_write", "passenger_read"})
      */
     private $height;
