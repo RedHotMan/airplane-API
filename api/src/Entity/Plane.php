@@ -8,9 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource(
+ *     attributes={"access_control"="is_granted('ROLE_USER')"},
  *     collectionOperations={
  *         "get",
  *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
@@ -24,6 +26,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     denormalizationContext={"groups"={"plane_write"}}
  * )
  * @ORM\Entity(repositoryClass="App\Repository\PlaneRepository")
+ * @UniqueEntity("number")
  */
 class Plane
 {

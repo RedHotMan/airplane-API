@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
+ *     attributes={"access_control"="is_granted('ROLE_USER')"},
  *     normalizationContext={"groups"={"luggage_read"}},
  *     denormalizationContext={"groups"={"luggage_write"}}
  * )
@@ -41,7 +42,8 @@ class Luggage
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Passenger", inversedBy="luggages")
-     * @Groups({"luggage_read"})
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"luggage_read", "luggage_write"})
      */
     private $passenger;
 

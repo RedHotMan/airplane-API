@@ -13,6 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource(
+ *     attributes={"access_control"="is_granted('ROLE_USER')"},
  *     collectionOperations={
  *         "get"
  *     },
@@ -139,10 +140,5 @@ class City
         }
 
         return $this;
-    }
-
-    public function _toString()
-    {
-        return $this->name;
     }
 }

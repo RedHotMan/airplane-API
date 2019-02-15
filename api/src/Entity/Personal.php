@@ -13,6 +13,7 @@ use App\Validator\Constraints\PersonalFunctions;
 
 /**
  * @ApiResource(
+ *     attributes={"access_control"="is_granted('ROLE_USER')"},
  *     collectionOperations={
  *         "get",
  *         "post"

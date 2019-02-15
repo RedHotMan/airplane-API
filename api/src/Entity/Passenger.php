@@ -13,6 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource(
+ *     attributes={"access_control"="is_granted('ROLE_USER')"},
  *     collectionOperations={
  *         "get",
  *         "post"={"validation_groups"={"Default", "postValidation"}}
@@ -79,7 +80,7 @@ class Passenger
     /**
      * @ApiSubresource(maxDepth=1)
      * @ORM\ManyToMany(targetEntity="App\Entity\Flight", mappedBy="passengers")
-     * @Groups({"passenger_read", "company_read"})
+     * @Groups({"passenger_read", "company_read", "passenger_write"})
      */
     private $flights;
 
@@ -199,10 +200,5 @@ class Passenger
         }
 
         return $this;
-    }
-
-    public function _toString()
-    {
-        return $this->firstname.' '.$this->lastname;
     }
 }

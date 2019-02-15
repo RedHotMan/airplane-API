@@ -15,17 +15,18 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *
  * @ApiResource(
  *     collectionOperations={
- *         "get",
+ *         "get"={"access_control"="is_granted('ROLE_USER')"},
  *         "post"={"validation_groups"={"Default", "postValidation"}}
  *     },
  *     itemOperations={
- *         "delete"={"access_control"="is_granted('ROLE_USER') and object == user or is_granted('ROLE_ADMIN')"},
- *         "get"={"access_control"="is_granted('ROLE_USER') and object == user "},
+ *         "delete"={"access_control"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object == user"},
+ *         "get"={"access_control"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object == user "},
  *         "put"={
- *              "access_control"="is_granted('ROLE_USER') and object == user or is_granted('ROLE_ADMIN')",
+ *              "access_control"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object == user",
  *              "validation_groups"={"Default", "putValidation"}
  *          },
  *          "makeUserAdmin"={
+ *              "access_control"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object == user",
  *              "route_name"="make_user_admin",
  *              "swagger_context"={
  *                  "parameters"={
@@ -184,7 +185,7 @@ class User implements UserInterface
     {
         if (!in_array($roles, $this->roles))
         {
-            $roles[] = $roles;
+            $this->roles[] = $roles;
         }
         return $this;
     }
