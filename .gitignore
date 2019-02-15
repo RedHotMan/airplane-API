@@ -1,2 +1,5 @@
 /docker-compose.override.yaml
 /docker-compose.override.yml
+/.idea
+vendor/
+api/src/Migrations/Version20190215124312.php
